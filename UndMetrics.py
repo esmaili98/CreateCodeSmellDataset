@@ -10,9 +10,9 @@ import csv
 
 
 
-def give_db():
+def give_db(sourcedir):
         print("select the system : ")
-        udb_name_path=search_for_file_path()
+        udb_name_path=search_for_file_path(sourcedir)
         print("the '.udb' file created.")
         udb_path=udb_name_path[1]+"/"+udb_name_path[0]+".udb"
         print("'.udb' file path is : ",udb_path)
@@ -20,13 +20,14 @@ def give_db():
         return db
 
 
-def search_for_file_path():
+def search_for_file_path(sourcedir):
         root = tkinter.Tk()
         root.withdraw()  # use to hide tkinter window
         currdir = os.getcwd()
-        tempdir = filedialog.askdirectory(parent=root, initialdir=currdir, title='Please select a directory')
+        # tempdir = filedialog.askdirectory(parent=root, initialdir=currdir, title='Please select a directory')
+        tempdir=sourcedir
         if len(tempdir) > 0:
-            print("You chose: %s" % tempdir)
+            print("You choose: %s" % tempdir)
 
         print("\nfile_path_variable = ", tempdir)
         # {{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{
@@ -35,7 +36,9 @@ def search_for_file_path():
 
         # path
         project_name=create_understand_database_from_project(rootpath)
+        # print('111',project_name,'2222',tempdir)
         return [project_name,tempdir]
+
 
 def create_understand_database_from_project(root_path):
         # root_path = 'C:\\Users\\saeed\\Desktop\\csharpprojectfortestudb\\Root_projects_folder\\'
@@ -57,8 +60,8 @@ def create_understand_database_from_project(root_path):
 
 
 
-def def_get_metrics():
-        db=give_db()
+def def_get_metrics(sourcedir):
+        db=give_db(sourcedir)
         classes=0
         totalclasses = db.ents("class")
         for cls in range(0, len(totalclasses)):
@@ -77,8 +80,8 @@ def def_get_metrics():
 
         return obj_return_result.return_results(db)
 
-def createCSVfiles():
-    ClassMethodMetrics=def_get_metrics()
+def createCSVfiles(sourcedir):
+    ClassMethodMetrics=def_get_metrics(sourcedir)
     ClassMethodMetrics[0][1].insert(0, 'longname')
     ClassMethodMetrics[1][1].insert(0, 'longname')
 
@@ -107,3 +110,4 @@ def createCSVfiles():
     print('______________________Method Metrics CSV file has been created______________________')
     return ClassMethodMetrics
 # createCSVfiles()
+# search_for_file_path()
