@@ -12,48 +12,59 @@ def MatchLongNames(smellcsvfile):
     for enityname in smellcsvfile:
         # print("entity name: ",enityname)
         # print("entity last: ", enityname[-1])
-        smeicoutn=enityname.count(';')
-        firstsemiindex = enityname.index(';')
-        if smeicoutn==1:
-            if enityname[firstsemiindex-5:firstsemiindex]=='.java':
-                if enityname[firstsemiindex+1]==' ':
-                    metricname= str(enityname[firstsemiindex+2:]) + '.' + enityname[:firstsemiindex-5]
-                else:
-                    metricname = str(enityname[firstsemiindex + 1:]) + '.' + enityname[:firstsemiindex - 5]
+        smeicount=enityname.count(';')
+        try:
+            firstsemiindex = enityname.index(';')
+        except:
+            continue
+        if smeicount==0:
+            metricname=enityname[:-5]
+        elif smeicount==1:
+            if enityname[-1] == ';' or enityname[-2:] == '; ' or enityname[-3:] == ';  ':
+                metricname=enityname[:-6]
             else:
-                if enityname[firstsemiindex+1]==' ':
-                    metricname = str(enityname[firstsemiindex + 2:]) + '.' + enityname[:firstsemiindex]
-                else:
-                    metricname = str(enityname[firstsemiindex + 1:]) + '.' + enityname[:firstsemiindex]
-
-
-        elif smeicoutn==2:
-            secondsemiindex = enityname.index(';', firstsemiindex + 1)
-            if enityname[-1] == ';' or enityname[-2] == ';' or enityname[-3] == ';' or enityname[-4] == ';':
-                if enityname[firstsemiindex - 5:firstsemiindex] == '.java':
+                if enityname[firstsemiindex-5:firstsemiindex]=='.java':
                     if enityname[firstsemiindex+1]==' ':
-                        metricname= str(enityname[firstsemiindex+2:-1]) + '.' + enityname[:firstsemiindex-5]
+                        metricname= str(enityname[firstsemiindex+2:]) + '.' + enityname[:firstsemiindex-5]
+                    else:
+                        metricname = str(enityname[firstsemiindex + 1:]) + '.' + enityname[:firstsemiindex - 5]
+                else:
+                    if enityname[firstsemiindex+1]==' ':
+                        metricname = str(enityname[firstsemiindex + 2:]) + '.' + enityname[:firstsemiindex]
+                    else:
+                        metricname = str(enityname[firstsemiindex + 1:]) + '.' + enityname[:firstsemiindex]
+
+
+        elif smeicount==2:
+            secondsemiindex = enityname.index(';', firstsemiindex + 1)
+            if enityname[firstsemiindex - 5:firstsemiindex] == '.java':
+                if enityname[-1] == ';' or enityname[-2:] == '; ':          # 1
+                    if enityname[firstsemiindex+1]==' ':
+                        metricname = str(enityname[firstsemiindex + 2:-1]) + '.' + enityname[:firstsemiindex - 5]
                     else:
                         metricname = str(enityname[firstsemiindex + 1:-1]) + '.' + enityname[:firstsemiindex - 5]
                 else:
-                    if enityname[firstsemiindex + 1] == ' ':
-                        metricname = str(enityname[firstsemiindex + 2:-1]) + '.' + enityname[:firstsemiindex]
-                    else:
-                        metricname = str(enityname[firstsemiindex + 1:-1]) + '.' + enityname[:firstsemiindex]
+                    if enityname[firstsemiindex+1]=='"' or enityname[firstsemiindex+1:firstsemiindex+3]==' "':    # 5
+                        metricname = enityname[:firstsemiindex-5]
+                    else:                                                                                         # 2
+                        if enityname[firstsemiindex + 1] == ' ':
+                            metricname = str(enityname[firstsemiindex + 2:secondsemiindex]) + '.' + enityname[:firstsemiindex - 5]
+                        else:
+                            metricname = str(enityname[firstsemiindex + 1:secondsemiindex]) + '.' + enityname[:firstsemiindex - 5]
             else:
-                try:
-                    i=int(enityname[secondsemiindex+1:])
-                    if enityname[firstsemiindex - 5:firstsemiindex] == '.java':
+                try:                                                                                              # 3
+                    int(enityname[secondsemiindex + 1:])
+                    if enityname[secondsemiindex - 5:secondsemiindex] == '.java':
                         if enityname[firstsemiindex+1]==' ':
-                            metricname = str(enityname[firstsemiindex + 2:-1]) + '.' + enityname[:firstsemiindex - 5]
+                            metricname = str(enityname[firstsemiindex + 2:secondsemiindex-5]) + '.' + enityname[:firstsemiindex]
                         else:
-                            metricname = str(enityname[firstsemiindex + 1:-1]) + '.' + enityname[:firstsemiindex - 5]
+                            metricname = str(enityname[firstsemiindex + 1:secondsemiindex-5]) + '.' + enityname[:firstsemiindex]
                     else:
                         if enityname[firstsemiindex+1]==' ':
-                            metricname = str(enityname[firstsemiindex + 2:-1]) + '.' + enityname[:firstsemiindex]
+                            metricname = str(enityname[firstsemiindex + 2:secondsemiindex]) + '.' + enityname[:firstsemiindex]
                         else:
-                            metricname = str(enityname[firstsemiindex + 1:-1]) + '.' + enityname[:firstsemiindex]
-                except:
+                            metricname = str(enityname[firstsemiindex + 1:secondsemiindex]) + '.' + enityname[:firstsemiindex]
+                except:                                                                                           # 4
                     if enityname[secondsemiindex - 5:secondsemiindex] == '.java':
                         if enityname[secondsemiindex+1]==' ':
                             metricname = str(enityname[secondsemiindex + 2:]) + '.' + enityname[firstsemiindex+2:secondsemiindex - 5]+ '.' + enityname[:firstsemiindex]
@@ -66,10 +77,48 @@ def MatchLongNames(smellcsvfile):
                             metricname = str(enityname[secondsemiindex + 1:]) + '.' + enityname[firstsemiindex + 2:secondsemiindex] + '.' + enityname[:firstsemiindex]
 
 
-        elif smeicoutn==3:
+            # secondsemiindex = enityname.index(';', firstsemiindex + 1)
+            # if enityname[-1] == ';' or enityname[-2:] == '; ' or enityname[-3:] == ';  ' or enityname[-3:] == ';""' or enityname[-4:] == ';   ':
+            #     if enityname[firstsemiindex - 5:firstsemiindex] == '.java':
+            #         if enityname[firstsemiindex+1]==' ':
+            #             metricname= str(enityname[firstsemiindex+2:-1]) + '.' + enityname[:firstsemiindex-5]
+            #         else:
+            #             metricname = str(enityname[firstsemiindex + 1:-1]) + '.' + enityname[:firstsemiindex - 5]
+            #     else:
+            #         if enityname[firstsemiindex + 1] == ' ':
+            #             metricname = str(enityname[firstsemiindex + 2:-1]) + '.' + enityname[:firstsemiindex]
+            #         else:
+            #             metricname = str(enityname[firstsemiindex + 1:-1]) + '.' + enityname[:firstsemiindex]
+            # else:
+            #     try:
+            #         int(enityname[secondsemiindex+1:])
+            #         if enityname[firstsemiindex - 5:firstsemiindex] == '.java':
+            #             if enityname[firstsemiindex+1]==' ':
+            #                 metricname = str(enityname[firstsemiindex + 2:secondsemiindex]) + '.' + enityname[:firstsemiindex - 5]
+            #             else:
+            #                 metricname = str(enityname[firstsemiindex + 1:secondsemiindex]) + '.' + enityname[:firstsemiindex - 5]
+            #         else:
+            #             if enityname[firstsemiindex+1]==' ':
+            #                 metricname = str(enityname[firstsemiindex + 2:secondsemiindex]) + '.' + enityname[:firstsemiindex]
+            #             else:
+            #                 metricname = str(enityname[firstsemiindex + 1:secondsemiindex]) + '.' + enityname[:firstsemiindex]
+            #     except:
+            #         if enityname[secondsemiindex - 5:secondsemiindex] == '.java':
+            #             if enityname[secondsemiindex+1]==' ':
+            #                 metricname = str(enityname[secondsemiindex + 2:]) + '.' + enityname[firstsemiindex+2:secondsemiindex - 5]+ '.' + enityname[:firstsemiindex]
+            #             else:
+            #                 metricname = str(enityname[secondsemiindex + 1:]) + '.' + enityname[firstsemiindex + 2:secondsemiindex - 5] + '.' + enityname[:firstsemiindex]
+            #         else:
+            #             if enityname[secondsemiindex + 1] == ' ':
+            #                 metricname = str(enityname[secondsemiindex + 2:]) + '.' + enityname[firstsemiindex+2:secondsemiindex]+ '.' + enityname[:firstsemiindex]
+            #             else:
+            #                 metricname = str(enityname[secondsemiindex + 1:]) + '.' + enityname[firstsemiindex + 2:secondsemiindex] + '.' + enityname[:firstsemiindex]
+
+
+        elif smeicount==3:
             secondsemiindex = enityname.index(';', firstsemiindex+1)
             thirdsemiindex = enityname.index(';', secondsemiindex + 1)
-            if enityname[-1] == ';' or enityname[-2] == ';'or enityname[-3] == ';'or enityname[-4] == ';':
+            if enityname[-1] == ';' or enityname[-2:] == '; 'or enityname[-3:] == ';  ' or enityname[-3:] == ';""' or enityname[-4:] == ';   ':
                 if enityname[firstsemiindex - 5:firstsemiindex] == '.java':
                     if enityname[firstsemiindex+1]==' ':
                         metricname = str(enityname[firstsemiindex + 2:secondsemiindex]) + '.' + enityname[:firstsemiindex - 5]
@@ -81,22 +130,29 @@ def MatchLongNames(smellcsvfile):
                     else:
                         metricname = str(enityname[firstsemiindex + 1:secondsemiindex]) + '.' + enityname[:firstsemiindex]
             else:
-                if enityname[secondsemiindex - 5:secondsemiindex] == '.java':
-                    if enityname[secondsemiindex+1]==' ':
-                        metricname = str(enityname[secondsemiindex + 2:thirdsemiindex]) + '.' + enityname[firstsemiindex+2:secondsemiindex - 5] + '.' + enityname[:firstsemiindex]
-                    else:
-                        metricname = str(enityname[secondsemiindex + 1:thirdsemiindex]) + '.' + enityname[firstsemiindex + 2:secondsemiindex - 5] + '.' + enityname[:firstsemiindex]
+                if enityname[firstsemiindex-5:firstsemiindex]=='.java':
+                        if enityname[firstsemiindex+1]==' ':
+                            metricname = str(enityname[firstsemiindex + 2:secondsemiindex]) + '.' + enityname[:firstsemiindex - 5]
+                        else:
+                            metricname = str(enityname[firstsemiindex + 1:secondsemiindex]) + '.' + enityname[:firstsemiindex - 5]
                 else:
-                    if enityname[secondsemiindex + 1] == ' ':
-                        metricname = str(enityname[secondsemiindex + 2:thirdsemiindex]) + '.' + enityname[firstsemiindex+2:secondsemiindex] + '.' + enityname[:firstsemiindex]
+                    if enityname[secondsemiindex - 5:secondsemiindex] == '.java':
+                        if enityname[secondsemiindex+1]==' ':
+                            metricname = str(enityname[secondsemiindex + 2:thirdsemiindex]) + '.' + enityname[firstsemiindex+2:secondsemiindex - 5] + '.' + enityname[:firstsemiindex]
+                        else:
+                            metricname = str(enityname[secondsemiindex + 1:thirdsemiindex]) + '.' + enityname[firstsemiindex + 2:secondsemiindex - 5] + '.' + enityname[:firstsemiindex]
                     else:
-                        metricname = str(enityname[secondsemiindex + 1:thirdsemiindex]) + '.' + enityname[firstsemiindex + 2:secondsemiindex] + '.' + enityname[:firstsemiindex]
+                        if enityname[secondsemiindex + 1] == ' ':
+                            metricname = str(enityname[secondsemiindex + 2:thirdsemiindex]) + '.' + enityname[firstsemiindex+2:secondsemiindex] + '.' + enityname[:firstsemiindex]
+                        else:
+                            metricname = str(enityname[secondsemiindex + 1:thirdsemiindex]) + '.' + enityname[firstsemiindex + 2:secondsemiindex] + '.' + enityname[:firstsemiindex]
 
 
-        elif smeicoutn==4:
+        elif smeicount==4:
             secondsemiindex = enityname.index(';', firstsemiindex + 1)
             thirdsemiindex = enityname.index(';', secondsemiindex + 1)
-            if enityname[-1] == ';' or enityname[-2] == ';'or enityname[-3] == ';'or enityname[-4] == ';'or enityname[-5] == ';':
+            forthsemiindex=enityname.index(';',thirdsemiindex+1)
+            if enityname[-1] == ';' or enityname[-2:] == '; 'or enityname[-3:] == ';  ' or enityname[-4:] == ';   ':
                 if enityname[secondsemiindex - 5:secondsemiindex] == '.java':# its a seperator
                     if enityname[secondsemiindex + 1] == ' ':
                         metricname=enityname[secondsemiindex+2:thirdsemiindex]+'.'+enityname[firstsemiindex+2:secondsemiindex-5]+'.'+enityname[:firstsemiindex]
@@ -114,33 +170,57 @@ def MatchLongNames(smellcsvfile):
                         else:
                             metricname = str(enityname[firstsemiindex + 1:secondsemiindex]) + '.' + enityname[:firstsemiindex]
             else:
+                try:
+                    i = int(enityname[forthsemiindex + 1:])
+                    if enityname[secondsemiindex - 5:secondsemiindex] == '.java':
+                        if enityname[secondsemiindex+1]==' ':
+                            metricname= str(enityname[secondsemiindex+2:thirdsemiindex]) + '.' + enityname[firstsemiindex+2:secondsemiindex-5]+ '.' + enityname[:firstsemiindex]
+                        else:
+                            metricname = str(enityname[secondsemiindex + 1:thirdsemiindex]) + '.' + enityname[firstsemiindex + 2:secondsemiindex - 5] + '.' + enityname[:firstsemiindex]
+                    else:
+                        if enityname[secondsemiindex+1]==' ':
+                            metricname= str(enityname[secondsemiindex+2:thirdsemiindex]) + '.' + enityname[firstsemiindex+2:secondsemiindex]+ '.' + enityname[:firstsemiindex]
+                        else:
+                            metricname = str(enityname[secondsemiindex + 1:thirdsemiindex]) + '.' + enityname[firstsemiindex + 2:secondsemiindex] + '.' + enityname[:firstsemiindex]
+                except:
+                    # copy past balayee
+                    if enityname[secondsemiindex - 5:secondsemiindex] == '.java':  # its a seperator
+                        if enityname[secondsemiindex + 1] == ' ':
+                            metricname = enityname[secondsemiindex + 2:thirdsemiindex] + '.' + enityname[firstsemiindex + 2:secondsemiindex - 5] + '.' + enityname[:firstsemiindex]
+                        else:
+                            metricname = enityname[secondsemiindex + 1:thirdsemiindex] + '.' + enityname[firstsemiindex + 2:secondsemiindex - 5] + '.' + enityname[:firstsemiindex]
+                    else:
+                        if enityname[firstsemiindex - 5:firstsemiindex] == '.java':
+                            if enityname[firstsemiindex + 1] == ' ':
+                                metricname = str(enityname[firstsemiindex + 2:secondsemiindex]) + '.' + enityname[:firstsemiindex - 5]
+                            else:
+                                metricname = str(enityname[firstsemiindex + 1:secondsemiindex]) + '.' + enityname[:firstsemiindex - 5]
+                        else:
+                            if enityname[firstsemiindex + 1] == ' ':
+                                metricname = str(enityname[firstsemiindex + 2:secondsemiindex]) + '.' + enityname[:firstsemiindex]
+                            else:
+                                metricname = str(enityname[firstsemiindex + 1:secondsemiindex]) + '.' + enityname[:firstsemiindex]
+
+        elif smeicount==5:
+            secondsemiindex = enityname.index(';', firstsemiindex + 1)
+            thirdsemiindex = enityname.index(';', secondsemiindex + 1)
+
+            if enityname[firstsemiindex-5:firstsemiindex]=='.java':
+                metricname=enityname[:firstsemiindex-5]
+            else:
                 if enityname[secondsemiindex - 5:secondsemiindex] == '.java':
                     if enityname[secondsemiindex+1]==' ':
-                        metricname= str(enityname[secondsemiindex+2:thirdsemiindex]) + '.' + enityname[firstsemiindex+2:secondsemiindex-5]+ '.' + enityname[:firstsemiindex]
+                        metricname = str(enityname[secondsemiindex + 2:thirdsemiindex]) + '.' + enityname[firstsemiindex+2:secondsemiindex - 5] + '.' + enityname[:firstsemiindex]
                     else:
                         metricname = str(enityname[secondsemiindex + 1:thirdsemiindex]) + '.' + enityname[firstsemiindex + 2:secondsemiindex - 5] + '.' + enityname[:firstsemiindex]
                 else:
-                    if enityname[secondsemiindex+1]==' ':
-                        metricname= str(enityname[secondsemiindex+2:thirdsemiindex]) + '.' + enityname[firstsemiindex+2:secondsemiindex]+ '.' + enityname[:firstsemiindex]
+                    if enityname[secondsemiindex + 1] == ' ':
+                        metricname = str(enityname[secondsemiindex + 2:thirdsemiindex]) + '.' + enityname[firstsemiindex+2:secondsemiindex] + '.' + enityname[:firstsemiindex]
                     else:
                         metricname = str(enityname[secondsemiindex + 1:thirdsemiindex]) + '.' + enityname[firstsemiindex + 2:secondsemiindex] + '.' + enityname[:firstsemiindex]
 
-        elif smeicoutn==5:
-            secondsemiindex = enityname.index(';', firstsemiindex + 1)
-            thirdsemiindex = enityname.index(';', secondsemiindex + 1)
-            if enityname[secondsemiindex - 5:secondsemiindex] == '.java':
-                if enityname[secondsemiindex+1]==' ':
-                    metricname = str(enityname[secondsemiindex + 2:thirdsemiindex]) + '.' + enityname[firstsemiindex+2:secondsemiindex - 5] + '.' + enityname[:firstsemiindex]
-                else:
-                    metricname = str(enityname[secondsemiindex + 1:thirdsemiindex]) + '.' + enityname[firstsemiindex + 2:secondsemiindex - 5] + '.' + enityname[:firstsemiindex]
-            else:
-                if enityname[secondsemiindex + 1] == ' ':
-                    metricname = str(enityname[secondsemiindex + 2:thirdsemiindex]) + '.' + enityname[firstsemiindex+2:secondsemiindex] + '.' + enityname[:firstsemiindex]
-                else:
-                    metricname = str(enityname[secondsemiindex + 1:thirdsemiindex]) + '.' + enityname[firstsemiindex + 2:secondsemiindex] + '.' + enityname[:firstsemiindex]
 
-
-        elif smeicoutn==7:
+        elif smeicount==7:
             secondsemiindex = enityname.index(';', firstsemiindex + 1)
             if enityname[firstsemiindex - 5:firstsemiindex] == '.java':
                 if enityname[firstsemiindex+1]==' ':
@@ -153,7 +233,7 @@ def MatchLongNames(smellcsvfile):
                 else:
                     metricname = str(enityname[firstsemiindex + 1:secondsemiindex]) + '.' + enityname[firstsemiindex]
         else:
-            print('number of semi : ',smeicoutn)
+            print('number of semi : ',smeicount)
         correctedname.append(metricname)
 
     return correctedname
@@ -187,7 +267,7 @@ def readallsmellcsvfiles(path):
                 listcsvsmellrows = list()
                 # print('reader',reader)
                 for row in reader:
-                    print('row',row)
+                    # print('row',row)
                     listcsvsmellrows.append(row[0])
                 allsmellcsvrows.append(listcsvsmellrows)
     # print(allsmellcsvrows)
@@ -228,6 +308,13 @@ def CreateCSVSmellMetricFile(sourceAddress,classsmellAddress,methodsmellAddress)
         csvsmellfilesname = csvsmellfiles[0]
         # each smell csv file
         for smellfile in range(len(csvsmellfilecorrected)):
+            #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            path = currentPath + '\\result\\' + foldername
+            if not os.path.exists(path):
+                os.makedirs(path)
+            address = path + '\\' + 'log.txt'
+            logfile=open(address,'a')
+            # @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
             missCount=0
             extracount=0
             hitCount=0
@@ -238,7 +325,8 @@ def CreateCSVSmellMetricFile(sourceAddress,classsmellAddress,methodsmellAddress)
             # each entity in smell csv file
             for entity in csvsmellfilecorrected[smellfile]:
                 flag = -1
-                print('entity',entity)
+                # print('entity',entity)
+                logfile.writelines(entity+'\n')
                 i=0
                 limit=len(undmetricslist[level])
 
@@ -250,7 +338,8 @@ def CreateCSVSmellMetricFile(sourceAddress,classsmellAddress,methodsmellAddress)
                             hitCount += 1
                         elif flag==0:
                             extracount+=1
-                        print('entered')
+                        # print('entered')
+                        logfile.writelines('entered\n')
                         finalcsvfile.append(undmetricslist[level][i])
                         # print('11111111',undmetricslist[level][i])
                         removecandidates.append(undmetricslist[level][i])
@@ -265,16 +354,21 @@ def CreateCSVSmellMetricFile(sourceAddress,classsmellAddress,methodsmellAddress)
             if len(finalcsvfile)==1:
                 finalcsvfile.pop()
 
-            if missCount!=0:
+            if missCount!=0 and extracount==0:
                 path = currentPath +'\\result\\' + foldername
                 if not os.path.exists(path):
                     os.makedirs(path)
-                address=path+'\\'+csvsmellfilesname[smellfile][0:-4]+'_'+foldername+'_MissedEntity.csv'
-            elif extracount!=0:
+                address=path+'\\'+csvsmellfilesname[smellfile][0:-4]+'_'+foldername+'--'+str(missCount)+'_MissedEntity.csv'
+            elif extracount!=0 and missCount==0:
                 path = currentPath +'\\result\\'+ foldername +'\\'+'Extras'
                 if not os.path.exists(path):
                     os.makedirs(path)
-                address=path+'\\' + csvsmellfilesname[smellfile][0:-4]+'_'+foldername + '_ExtraEntity.csv'
+                address=path+'\\' + csvsmellfilesname[smellfile][0:-4]+'_'+foldername +'--'+str(extracount)+ '_ExtraEntity.csv'
+            elif extracount!=0 and missCount!=0:
+                path = currentPath + '\\result\\' + foldername + '\\' + 'ExtraMiss'
+                if not os.path.exists(path):
+                    os.makedirs(path)
+                address = path + '\\' + csvsmellfilesname[smellfile][0:-4] + '_' + foldername +'--'+str(extracount)+'_'+str(missCount)+ '_ExtraMissEntity.csv'
             else:
                 path=currentPath+ '\\result\\'+ foldername
                 if not os.path.exists(path):
@@ -285,24 +379,40 @@ def CreateCSVSmellMetricFile(sourceAddress,classsmellAddress,methodsmellAddress)
             with open(address, 'w', newline='') as f:
                 writer = csv.writer(f)
                 writer.writerows(finalcsvfile)
-            print('______________________'+csvsmellfilesname[smellfile]+'Smell Metrics CSV file has been created______________________')
-            print('____________number of hits : ',hitCount,' number of extras : ',extracount,' number of missed : ',missCount ,'____________')
-
-        print('______Number of smelly elements are : ',len(removecandidates),'______')
+            # print('______________________'+csvsmellfilesname[smellfile]+'Smell Metrics CSV file has been created______________________')
+            # print('____________number of hits : ',hitCount,' number of extras : ',extracount,' number of missed : ',missCount ,'____________')
+            logfile.writelines('______________________'+csvsmellfilesname[smellfile]+'Smell Metrics CSV file has been created______________________\n')
+            logfile.writelines('____________number of hits : '+str(hitCount)+' number of extras : '+str(extracount)+' number of missed : '+str(missCount) +'____________\n')
+        # print('______Number of smelly elements are : ',len(removecandidates),'______')
+        logfile.writelines('______Number of smelly elements are : '+str(len(removecandidates))+'______\n')
+        logfile.writelines('\n\n\n\n\t\t\t\t___________Method level smell candidates___________\n\n')
         # print(removecandidates)
         for removeelement in  removecandidates:
             try:
                 undmetricslist[level].remove(removeelement)
             except:
                 continue
+
+        removecandidatelist = list()
+        # print('#########################')
+        # print(undmetricslist[level][10])
+        for entity in undmetricslist[level]:
+            if entity.count(None) > 20 or entity.count(0) > 20:
+                removecandidatelist.append(entity)
+        # print('@@@@@@@@@@@@@@@@@@@@@@')
+        # print(len(removecandidatelist))
+        for candidate in removecandidatelist:
+            undmetricslist[level].remove(candidate)
+
+
         # print('@@@@@',undmetricslist[0])
         if level==0:
-            path =currentPath + '\\result\\'+ foldername
+            path =currentPath + '\\result\\'+ foldername+'\\noSmell'
             if not os.path.exists(path):
                 os.makedirs(path)
             address=path+'\\'+'class_nonsmell.csv'
         else:
-            path = currentPath + '\\result\\'+ foldername
+            path = currentPath + '\\result\\'+ foldername+'\\noSmell'
             if not os.path.exists(path):
                 os.makedirs(path)
             address=path+'\\'+'method_nonsmell.csv'

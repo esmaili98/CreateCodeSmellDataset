@@ -99,12 +99,12 @@ def createCSVfiles(sourcedir):
     ClassMethodMetrics[0].pop(0)
     ClassMethodMetrics[1].pop(0)
 
-    with open('ClassMetricsFile.csv', 'w', newline='') as f:
+    with open('C:/Users/Sadaf/PycharmProjects/CreateDataset/ClassMetricsFile.csv', 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerows(ClassMethodMetrics[0])
     print('______________________Class Metrics CSV file has been created______________________')
 
-    with open('MethodMetricsFile.csv', 'w', newline='') as f:
+    with open('C:/Users/Sadaf/PycharmProjects/CreateDataset/MethodMetricsFile.csv', 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerows(ClassMethodMetrics[1])
     print('______________________Method Metrics CSV file has been created______________________')
