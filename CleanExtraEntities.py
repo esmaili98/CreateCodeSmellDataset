@@ -39,7 +39,7 @@ def cleanNoneElements(smellCSVList):
 def cleanCnadidateCSVFile():
     smellCSVFileAddress=browsefile_path()
     smellCSVList = readcsvsmellfile(smellCSVFileAddress)
-    if 'Long_Methods' in smellCSVFileAddress:
+    if 'Long_Methods' in smellCSVFileAddress or 'Large_Class' in smellCSVFileAddress:
         sortedFile=sort(smellCSVList,1)
     elif 'Long_Parameter_List' in smellCSVFileAddress:
         cleanedsmellCSVList=cleanNoneElements(smellCSVList)
@@ -50,7 +50,7 @@ def cleanCnadidateCSVFile():
 
     #determine remove candidates
     removeCandidates=list()
-    if 'Long_Methods' in smellCSVFileAddress or 'Long_Parameter_List' in smellCSVFileAddress:
+    if 'Long_Methods' in smellCSVFileAddress or 'Long_Parameter_List' in smellCSVFileAddress or 'Large_Class' in smellCSVFileAddress:
         for entity in range(1,len(sortedFile)):
             if sortedFile[entity][0]==sortedFile[entity-1][0]:
                 removeCandidates.append(sortedFile[entity-1])
@@ -60,7 +60,8 @@ def cleanCnadidateCSVFile():
         groupbylist=[[sortedFile[0],1]]
         entity=1
         while entity < len(sortedFile):
-            if sortedFile[entity]!=sortedFile[entity-1]:
+            # if sortedFile[entity]!=sortedFile[entity-1]:              privious code
+            if sortedFile[entity][0] != sortedFile[entity - 1][0]:
                 groupbylist.append([sortedFile[entity],1])
                 entity+=1
             else:
@@ -68,9 +69,13 @@ def cleanCnadidateCSVFile():
                 entity+=1
         # tempcandidates=list()
         print(groupbylist)
+        UncompeleteRemoveCandidates=list()
         for i in groupbylist:
             if i[1]>1:
-                removeCandidates.append(i[0])
+                UncompeleteRemoveCandidates.append(i[0][0])
+        for entity in sortedFile:
+            if entity[0] in UncompeleteRemoveCandidates:
+                removeCandidates.append(entity)
 
         # for i in tempcandidates:
         #     for j in sortedFile:

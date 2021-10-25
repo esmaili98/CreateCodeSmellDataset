@@ -1,7 +1,7 @@
 import os
 import glob
 import pandas as pd
-os.chdir("C:/Users/Sadaf/Desktop/NoSmell/MethodLevel")
+os.chdir("C:\\Users\\Sadaf\\Desktop\\27 Projects Final_Dataset - Copy\\Maiga\\Aggregate")
 extension = 'csv'
 all_filenames = [i for i in glob.glob('*.{}'.format(extension))]
 #combine all files in the list
