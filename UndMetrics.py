@@ -1,6 +1,6 @@
 import understand as und
 
-import main_metrics
+import Main_metrics
 
 import tkinter
 from tkinter import filedialog
@@ -78,7 +78,7 @@ def def_get_metrics(sourcedir):
 
         print("total classes : ",classes)
         print("total methods : ",methods)
-        obj_return_result=main_metrics.cls_arangement()
+        obj_return_result=Main_metrics.cls_arangement()
 
         return obj_return_result.return_results(db)
 
