@@ -1,5 +1,4 @@
-import glob
-import pandas as pd
+import shutil
 import tkinter
 from tkinter import filedialog
 import os
@@ -29,17 +28,24 @@ def autoBuild(dirAddress):
     print('metric', metricdir_list)
     # dir_list=sorted(dir_list)
     # print('sorted_test',dir_list)
-    for dir in range(len(smelldir_list)):
+    resultdir_list = os.listdir('C:\\Users\\Sadaf\\PycharmProjects\\CreateDataset\\result')
+    if resultdir_list!=[]:
+        lastresultdir = resultdir_list[-1]
+        startdir=smelldir_list.index(lastresultdir)+1
+    else:
+        startdir=0
+    for dir in range(startdir,len(smelldir_list)):
         print('dir',dir)
         metricdir=metricdiraddress+'/'+metricdir_list[dir]
         print('sourceadd', metricdir)
         # index=int((len(dir_list)/2))+dir
-        classSmellDir=smelldiraddress+'/'+smelldir_list[dir]+'/Validated/class'
+        classSmellDir=smelldiraddress+'/'+smelldir_list[dir]+'/class'
         print('classsmelladd', classSmellDir)
-        methodSmellDir = smelldiraddress + '/' + smelldir_list[dir] + '/Validated/method'
+        methodSmellDir = smelldiraddress + '/' + smelldir_list[dir] + '/method'
         print('methodsmelladd', methodSmellDir)
 
         MapSmellsANDMetrics.CreateCSVSmellMetricFile(metricdir,classSmellDir,methodSmellDir)
+
 
 def main():
     address=browsefile_path()

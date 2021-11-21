@@ -47,8 +47,8 @@ def cleandup():
     dest=address[:-4]+'_CleanedDup.csv'
     cleanDuplicates(source,dest)
 
-def cleanNone():
+def clean():
     cleanNoneItems()
 
 while(True):
-    cleanNone()
+    clean()

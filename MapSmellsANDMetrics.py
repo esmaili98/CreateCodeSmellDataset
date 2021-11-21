@@ -1,3 +1,4 @@
+import time
 import tkinter
 from tkinter import filedialog
 import os
@@ -5,7 +6,31 @@ import csv
 import UndMetrics
 
 def undmetricsget(sourcedir):
-    return UndMetrics.createCSVfiles(sourcedir)
+    methodpath = 'C:/Users/Sadaf/PycharmProjects/CreateDataset/MethodMetricsFile'
+    classpath = 'C:/Users/Sadaf/PycharmProjects/CreateDataset/ClassMetricsFile'
+    file = list(os.listdir(classpath))
+    files=map(lambda x: x[:-4],file)
+    index=len(sourcedir)-1
+    while sourcedir[index]!='/':
+        index-=1
+    filename = sourcedir[index + 1:]
+    if filename in files:
+        with open(classpath+'/'+filename+'.csv', 'r') as file:
+            reader = csv.reader(file)
+            classlistcsvsmellfile=list()
+            for row in reader:
+                classlistcsvsmellfile.append(row)
+
+        with open(methodpath+'/'+filename+'.csv', 'r') as file:
+            reader = csv.reader(file)
+            methodlistcsvsmellfile = list()
+            for row in reader:
+                methodlistcsvsmellfile.append(row)
+        return [classlistcsvsmellfile,methodlistcsvsmellfile]
+
+    #________________________________________________________________________________________
+    else:
+        return UndMetrics.createCSVfiles(sourcedir)
 
 def MatchLongNames(smellcsvfile):
     correctedname=list()
@@ -16,9 +41,26 @@ def MatchLongNames(smellcsvfile):
         try:
             firstsemiindex = enityname.index(';')
         except:
-            continue
+            pass
         if smeicount==0:
-            metricname=enityname[:-5]
+            if enityname[-5:]=='.java':
+                metricname=enityname[:-5]
+            elif '#' in enityname:
+                sharpindex=enityname.index('#')
+                try:
+                    metricname=enityname[:sharpindex]+'.'+enityname[sharpindex+1:enityname.index(' ')]
+                except:
+                    metricname = enityname[:sharpindex] + '.' + enityname[sharpindex + 1:]
+            elif '|' in enityname:
+                try:
+                    metricname=enityname[:enityname.index(' ')]
+                except:
+                    pass
+            else:
+                try:
+                    metricname=enityname[:enityname.index(' ')]
+                except:
+                    metricname=enityname
         elif smeicount==1:
             if enityname[-1] == ';' or enityname[-2:] == '; ' or enityname[-3:] == ';  ':
                 metricname=enityname[:-6]
@@ -278,7 +320,7 @@ def readallsmellcsvfiles(path):
 #         reader = csv.reader(file)
 #         listcsvsmellfile=list()
 #         for row in reader:
-#             listcsvsmellfile.append(row[0])
+#             listcsvsmellfile.append(row)
 #         return listcsvsmellfile
 
 def csvsmellfilecorrection(csvsmellfiles):
@@ -289,6 +331,7 @@ def csvsmellfilecorrection(csvsmellfiles):
 
 def CreateCSVSmellMetricFile(sourceAddress,classsmellAddress,methodsmellAddress):
     # address='C://Users//Sadaf//PycharmProjects//Compute_Metrics//ArgoUML-0.10.1-src_OK//Validated//candidate_Complex_Class.csv'
+
     foldername = os.path.basename(sourceAddress)
 
     # currentPath = os.getcwd()
@@ -384,6 +427,16 @@ def CreateCSVSmellMetricFile(sourceAddress,classsmellAddress,methodsmellAddress)
             logfile.writelines('______________________'+csvsmellfilesname[smellfile]+'Smell Metrics CSV file has been created______________________\n')
             logfile.writelines('____________number of hits : '+str(hitCount)+' number of extras : '+str(extracount)+' number of missed : '+str(missCount) +'____________\n')
         # print('______Number of smelly elements are : ',len(removecandidates),'______')
+        #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        # to create logfile and directory if we had no class smells
+        path = currentPath + '\\result\\' + foldername
+        if not os.path.exists(path):
+            os.makedirs(path)
+        address = path + '\\' + 'log.txt'
+        if not os.path.exists(address):
+            logfile = open(address, 'a')
+        #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
         logfile.writelines('______Number of smelly elements are : '+str(len(removecandidates))+'______\n')
         logfile.writelines('\n\n\n\n\t\t\t\t___________Method level smell candidates___________\n\n')
         # print(removecandidates)
@@ -391,7 +444,7 @@ def CreateCSVSmellMetricFile(sourceAddress,classsmellAddress,methodsmellAddress)
             try:
                 undmetricslist[level].remove(removeelement)
             except:
-                continue
+                pass
 
         removecandidatelist = list()
         # print('#########################')
@@ -420,7 +473,6 @@ def CreateCSVSmellMetricFile(sourceAddress,classsmellAddress,methodsmellAddress)
         with open(address, 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerows(undmetricslist[level])
-
 
 
 # CreateCSVSmellMetricFile()

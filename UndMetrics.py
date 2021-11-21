@@ -7,6 +7,8 @@ from tkinter import filedialog
 import os
 import csv
 
+import time
+
 
 
 
@@ -81,7 +83,11 @@ def def_get_metrics(sourcedir):
         return obj_return_result.return_results(db)
 
 def createCSVfiles(sourcedir):
+
     ClassMethodMetrics=def_get_metrics(sourcedir)
+    # print(ClassMethodMetrics[0])
+    # print(ClassMethodMetrics[1])
+    # time.sleep(60)
     ClassMethodMetrics[0][1].insert(0, 'longname')
     ClassMethodMetrics[1][1].insert(0, 'longname')
 
@@ -99,12 +105,16 @@ def createCSVfiles(sourcedir):
     ClassMethodMetrics[0].pop(0)
     ClassMethodMetrics[1].pop(0)
 
-    with open('C:/Users/Sadaf/PycharmProjects/CreateDataset/ClassMetricsFile.csv', 'w', newline='') as f:
+    index=len(sourcedir)-1
+    while sourcedir[index]!='/':
+        index-=1
+
+    with open('C:/Users/Sadaf/PycharmProjects/CreateDataset/ClassMetricsFile/'+sourcedir[index+1:]+'.csv', 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerows(ClassMethodMetrics[0])
     print('______________________Class Metrics CSV file has been created______________________')
 
-    with open('C:/Users/Sadaf/PycharmProjects/CreateDataset/MethodMetricsFile.csv', 'w', newline='') as f:
+    with open('C:/Users/Sadaf/PycharmProjects/CreateDataset/MethodMetricsFile/'+sourcedir[index+1:]+'.csv', 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerows(ClassMethodMetrics[1])
     print('______________________Method Metrics CSV file has been created______________________')

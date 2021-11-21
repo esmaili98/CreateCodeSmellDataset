@@ -22,7 +22,7 @@ def AggregateCSVFiles(address):
     dirList=os.listdir(address)
     smellNames = ['Class_Data_Should_Be_Private', 'Complex_Class', 'Inappropriate_Intimacy', 'Large_Class',
                   'Lazy_Class', 'Middle_Man', 'Refused_Bequest', 'Spaghetti_Code', 'Speculative_Generality', 'Comments',
-                  'Feature_Envy', 'Long_Methods', 'Long_Parameter_List', 'Message_Chains']
+                  'Feature_Envy', 'Long_Methods', 'Long_Parameter_List', 'Message_Chains','Blob']
 
     for dir in dirList:
         os.chdir(address+'/'+dir)

@@ -1,7 +1,11 @@
+import time
+
 import understand as und
 from statistics import mean
 import os
 import progressbar
+from threading import Thread
+import queue
 from tkinter import *
 # class cls_main:
 #     def main(self):
@@ -582,7 +586,9 @@ class cls_get_metrics:
             return None
 
     # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-    def ATLD(self,db,method_name):
+    def ATLD(self,parameter):
+        db=parameter[0]
+        method_name=parameter[1]
         try:
             if (  not(self.is_abstract(method_name)) or  not(self.is_interface(method_name.parent()))   ):
                 # cal directly access
@@ -592,7 +598,7 @@ class cls_get_metrics:
                 for att_ in access_att_:
                     if att_ in system_att_:
                         if (str(att_.kind()) in ["Unknown Variable", "Unknown Class"]):
-                            continue
+                            pass
                         if(att_.library()!="Standard"):
                             count+=1
                 # cal indirectly access
@@ -630,7 +636,7 @@ class cls_get_metrics:
                 break
         return entity.parent()
     # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-    def ATFD_method(self, db, method_name):
+    def ATFD_method(self, db,method_name):
         try:
             if not (str(method_name).startswith("get", "set", "Get", "Set")):
                 # cal directly access
@@ -798,7 +804,9 @@ class cls_get_metrics:
         except:
             return call_methods_list
     # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-    def give_cc(self,db,funcname):
+    def give_cc(self,parameter):
+        db=parameter[0]
+        funcname=parameter[1]
         try:
             if(self.is_private(funcname)):
                 return None
@@ -1140,7 +1148,7 @@ class cls_arangement:
             if str(totalclasses[cls].library()) != "Standard":
                 try:
                     if (self.is_abstract(totalclasses[cls]) or self.is_interface(totalclasses[cls].parent())):
-                        continue
+                        pass
                     else:
                 # if True:
                         class_name.append(str(totalclasses[cls].longname()))
@@ -1154,67 +1162,143 @@ class cls_arangement:
         return [class_name,class_metric_name,class_metric_values]
         # return a list consist of classes and methods and thier metrics value
 
+
     def call_class_metrics(self,db,class_name):
-        class_metrics_value=list()
+        ques=list()
+        for i in range(53):
+            ques.append(queue.Queue())
+
         obj_get_metrics = cls_get_metrics()
+        classthreads=list()
         # the order of the following invokes code is based on class_metric_name list
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.LOC(arg1)), args=(ques[0],class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.LOCNAMM(arg1)), args=(ques[1], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.WMCNAMM(arg1)), args=(ques[2], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.NOMNAMM(arg1)), args=(ques[3], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.TCC(arg1)), args=(ques[4], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.ATFD_CLASS(arg1)), args=(ques[5], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.WOC(arg1)), args=(ques[6], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.NOAM(arg1)), args=(ques[7], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.NOPA(arg1)), args=(ques[8], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.AvgCyclomatic(arg1)), args=(ques[9], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.AvgCyclomaticModified(arg1)), args=(ques[10], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.AvgCyclomaticStrict(arg1)), args=(ques[11], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.AvgEssential(arg1)), args=(ques[12], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.AvgLine(arg1)), args=(ques[13], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.AvgLineBlank(arg1)), args=(ques[14], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.AvgLineCode(arg1)), args=(ques[15], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.AvgLineComment(arg1)), args=(ques[16], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountClassBase(arg1)), args=(ques[17], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountClassCoupled(arg1)), args=(ques[18], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountClassCoupledModified(arg1)), args=(ques[19], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountClassDerived(arg1)), args=(ques[20], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountDeclClassMethod(arg1)), args=(ques[21], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountDeclClassVariable(arg1)), args=(ques[22], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountDeclInstanceMethod(arg1)), args=(ques[23], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountDeclInstanceVariable(arg1)), args=(ques[24], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountDeclMethod(arg1)), args=(ques[25], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountDeclMethodAll(arg1)), args=(ques[26], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountDeclMethodDefault(arg1)), args=(ques[27], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountDeclMethodPrivate(arg1)), args=(ques[28], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountDeclMethodProtected(arg1)), args=(ques[29], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountDeclMethodPublic(arg1)), args=(ques[30], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountLineBlank(arg1)), args=(ques[31], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountLineCode(arg1)), args=(ques[32], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountLineCodeDecl(arg1)), args=(ques[33], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountLineCodeExe(arg1)), args=(ques[34], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountLineComment(arg1)), args=(ques[35], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountSemicolon(arg1)), args=(ques[36], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountStmt(arg1)), args=(ques[37], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountStmtDecl(arg1)), args=(ques[38], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountStmtExe(arg1)), args=(ques[39], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.MaxCyclomatic(arg1)), args=(ques[40], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.MaxCyclomaticModified(arg1)), args=(ques[41], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.MaxCyclomaticStrict(arg1)), args=(ques[42], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.MaxEssential(arg1)), args=(ques[43], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.MaxInheritanceTree(arg1)), args=(ques[44], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.MAXNESTING(arg1)), args=(ques[45], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.PercentLackOfCohesion(arg1)), args=(ques[46], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.PercentLackOfCohesionModified(arg1)), args=(ques[47], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.RatioCommentToCode(arg1)), args=(ques[48], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.SumCyclomatic(arg1)), args=(ques[49], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.SumCyclomaticModified(arg1)), args=(ques[50], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.SumCyclomaticStrict(arg1)), args=(ques[51], class_name)))
+        classthreads.append(Thread(target=lambda q, arg1: q.put(obj_get_metrics.SumEssential(arg1)), args=(ques[52], class_name)))
 
-        class_metrics_value.append(obj_get_metrics.LOC(class_name))
-        class_metrics_value.append(obj_get_metrics.LOCNAMM(class_name))
-        class_metrics_value.append(obj_get_metrics.WMCNAMM(class_name))
-        class_metrics_value.append(obj_get_metrics.NOMNAMM(class_name))
-        class_metrics_value.append(obj_get_metrics.TCC(class_name))
-        class_metrics_value.append(obj_get_metrics.ATFD_CLASS(class_name))
-        class_metrics_value.append(obj_get_metrics.WOC(class_name))
-        class_metrics_value.append(obj_get_metrics.NOAM(class_name))
-        class_metrics_value.append(obj_get_metrics.NOPA(class_name))
-        class_metrics_value.append(obj_get_metrics.AvgCyclomatic(class_name))
-        class_metrics_value.append(obj_get_metrics.AvgCyclomaticModified(class_name))
-        class_metrics_value.append(obj_get_metrics.AvgCyclomaticStrict(class_name))
-        class_metrics_value.append(obj_get_metrics.AvgEssential(class_name))
-        class_metrics_value.append(obj_get_metrics.AvgLine(class_name))
-        class_metrics_value.append(obj_get_metrics.AvgLineBlank(class_name))
-        class_metrics_value.append(obj_get_metrics.AvgLineCode(class_name))
-        class_metrics_value.append(obj_get_metrics.AvgLineComment(class_name))
-        class_metrics_value.append(obj_get_metrics.CountClassBase(class_name))
-        class_metrics_value.append(obj_get_metrics.CountClassCoupled(class_name))
-        class_metrics_value.append(obj_get_metrics.CountClassCoupledModified(class_name))
-        class_metrics_value.append(obj_get_metrics.CountClassDerived(class_name))
-        class_metrics_value.append(obj_get_metrics.CountDeclClassMethod(class_name))
-        class_metrics_value.append(obj_get_metrics.CountDeclClassVariable(class_name))
-        class_metrics_value.append(obj_get_metrics.CountDeclInstanceMethod(class_name))
-        class_metrics_value.append(obj_get_metrics.CountDeclInstanceVariable(class_name))
-        class_metrics_value.append(obj_get_metrics.CountDeclMethod(class_name))
-        class_metrics_value.append(obj_get_metrics.CountDeclMethodAll(class_name))
-        class_metrics_value.append(obj_get_metrics.CountDeclMethodDefault(class_name))
-        class_metrics_value.append(obj_get_metrics.CountDeclMethodPrivate(class_name))
-        class_metrics_value.append(obj_get_metrics.CountDeclMethodProtected(class_name))
-        class_metrics_value.append(obj_get_metrics.CountDeclMethodPublic(class_name))
-        class_metrics_value.append(obj_get_metrics.CountLineBlank(class_name))
-        class_metrics_value.append(obj_get_metrics.CountLineCode(class_name))
-        class_metrics_value.append(obj_get_metrics.CountLineCodeDecl(class_name))
-        class_metrics_value.append(obj_get_metrics.CountLineCodeExe(class_name))
-        class_metrics_value.append(obj_get_metrics.CountLineComment(class_name))
-        class_metrics_value.append(obj_get_metrics.CountSemicolon(class_name))
-        class_metrics_value.append(obj_get_metrics.CountStmt(class_name))
-        class_metrics_value.append(obj_get_metrics.CountStmtDecl(class_name))
-        class_metrics_value.append(obj_get_metrics.CountStmtExe(class_name))
-        class_metrics_value.append(obj_get_metrics.MaxCyclomatic(class_name))
-        class_metrics_value.append(obj_get_metrics.MaxCyclomaticModified(class_name))
-        class_metrics_value.append(obj_get_metrics.MaxCyclomaticStrict(class_name))
-        class_metrics_value.append(obj_get_metrics.MaxEssential(class_name))
-        class_metrics_value.append(obj_get_metrics.MaxInheritanceTree(class_name))
-        class_metrics_value.append(obj_get_metrics.MAXNESTING(class_name))
-        class_metrics_value.append(obj_get_metrics.PercentLackOfCohesion(class_name))
-        class_metrics_value.append(obj_get_metrics.PercentLackOfCohesionModified(class_name))
-        class_metrics_value.append(obj_get_metrics.RatioCommentToCode(class_name))
-        class_metrics_value.append(obj_get_metrics.SumCyclomatic(class_name))
-        class_metrics_value.append(obj_get_metrics.SumCyclomaticModified(class_name))
-        class_metrics_value.append(obj_get_metrics.SumCyclomaticStrict(class_name))
-        class_metrics_value.append(obj_get_metrics.SumEssential(class_name))
+        for thread in classthreads:
+            thread.start()
+        for thread2 in classthreads:
+            thread2.join()
 
+        class_metrics_value = list()
+        for i in range(53):
+            class_metrics_value.append(ques[i].get())
 
         return class_metrics_value
+
+
+
+    # def call_class_metrics(self,db,class_name):
+    #     class_metrics_value=list()
+    #     obj_get_metrics = cls_get_metrics()
+    #     # the order of the following invokes code is based on class_metric_name list
+    #
+    #     class_metrics_value.append(obj_get_metrics.LOC(class_name))
+    #     class_metrics_value.append(obj_get_metrics.LOCNAMM(class_name))
+    #     class_metrics_value.append(obj_get_metrics.WMCNAMM(class_name))
+    #     class_metrics_value.append(obj_get_metrics.NOMNAMM(class_name))
+    #     class_metrics_value.append(obj_get_metrics.TCC(class_name))
+    #     class_metrics_value.append(obj_get_metrics.ATFD_CLASS(class_name))
+    #     class_metrics_value.append(obj_get_metrics.WOC(class_name))
+    #     class_metrics_value.append(obj_get_metrics.NOAM(class_name))
+    #     class_metrics_value.append(obj_get_metrics.NOPA(class_name))
+    #     class_metrics_value.append(obj_get_metrics.AvgCyclomatic(class_name))
+    #     class_metrics_value.append(obj_get_metrics.AvgCyclomaticModified(class_name))
+    #     class_metrics_value.append(obj_get_metrics.AvgCyclomaticStrict(class_name))
+    #     class_metrics_value.append(obj_get_metrics.AvgEssential(class_name))
+    #     class_metrics_value.append(obj_get_metrics.AvgLine(class_name))
+    #     class_metrics_value.append(obj_get_metrics.AvgLineBlank(class_name))
+    #     class_metrics_value.append(obj_get_metrics.AvgLineCode(class_name))
+    #     class_metrics_value.append(obj_get_metrics.AvgLineComment(class_name))
+    #     class_metrics_value.append(obj_get_metrics.CountClassBase(class_name))
+    #     class_metrics_value.append(obj_get_metrics.CountClassCoupled(class_name))
+    #     class_metrics_value.append(obj_get_metrics.CountClassCoupledModified(class_name))
+    #     class_metrics_value.append(obj_get_metrics.CountClassDerived(class_name))
+    #     class_metrics_value.append(obj_get_metrics.CountDeclClassMethod(class_name))
+    #     class_metrics_value.append(obj_get_metrics.CountDeclClassVariable(class_name))
+    #     class_metrics_value.append(obj_get_metrics.CountDeclInstanceMethod(class_name))
+    #     class_metrics_value.append(obj_get_metrics.CountDeclInstanceVariable(class_name))
+    #     class_metrics_value.append(obj_get_metrics.CountDeclMethod(class_name))
+    #     class_metrics_value.append(obj_get_metrics.CountDeclMethodAll(class_name))
+    #     class_metrics_value.append(obj_get_metrics.CountDeclMethodDefault(class_name))
+    #     class_metrics_value.append(obj_get_metrics.CountDeclMethodPrivate(class_name))
+    #     class_metrics_value.append(obj_get_metrics.CountDeclMethodProtected(class_name))
+    #     class_metrics_value.append(obj_get_metrics.CountDeclMethodPublic(class_name))
+    #     class_metrics_value.append(obj_get_metrics.CountLineBlank(class_name))
+    #     class_metrics_value.append(obj_get_metrics.CountLineCode(class_name))
+    #     class_metrics_value.append(obj_get_metrics.CountLineCodeDecl(class_name))
+    #     class_metrics_value.append(obj_get_metrics.CountLineCodeExe(class_name))
+    #     class_metrics_value.append(obj_get_metrics.CountLineComment(class_name))
+    #     class_metrics_value.append(obj_get_metrics.CountSemicolon(class_name))
+    #     class_metrics_value.append(obj_get_metrics.CountStmt(class_name))
+    #     class_metrics_value.append(obj_get_metrics.CountStmtDecl(class_name))
+    #     class_metrics_value.append(obj_get_metrics.CountStmtExe(class_name))
+    #     class_metrics_value.append(obj_get_metrics.MaxCyclomatic(class_name))
+    #     class_metrics_value.append(obj_get_metrics.MaxCyclomaticModified(class_name))
+    #     class_metrics_value.append(obj_get_metrics.MaxCyclomaticStrict(class_name))
+    #     class_metrics_value.append(obj_get_metrics.MaxEssential(class_name))
+    #     class_metrics_value.append(obj_get_metrics.MaxInheritanceTree(class_name))
+    #     class_metrics_value.append(obj_get_metrics.MAXNESTING(class_name))
+    #     class_metrics_value.append(obj_get_metrics.PercentLackOfCohesion(class_name))
+    #     class_metrics_value.append(obj_get_metrics.PercentLackOfCohesionModified(class_name))
+    #     class_metrics_value.append(obj_get_metrics.RatioCommentToCode(class_name))
+    #     class_metrics_value.append(obj_get_metrics.SumCyclomatic(class_name))
+    #     class_metrics_value.append(obj_get_metrics.SumCyclomaticModified(class_name))
+    #     class_metrics_value.append(obj_get_metrics.SumCyclomaticStrict(class_name))
+    #     class_metrics_value.append(obj_get_metrics.SumEssential(class_name))
+    #
+    #
+    #     return class_metrics_value
 
     def method_metrics_arange(self,db):
         method_name=list();method_metric_values=list()
@@ -1234,7 +1318,7 @@ class cls_arangement:
             if str(totalmethods[mth].library()) != "Standard":
                 try:
                     if (self.is_abstract(totalmethods[mth]) or self.is_interface(totalmethods[mth].parent())):
-                        continue
+                        pass
                     else:
             # if True:
                         method_name.append(str(totalmethods[mth].longname()))
@@ -1249,47 +1333,163 @@ class cls_arangement:
         # self.get_metrics(db)
         # return [self.method_metrics, self.method_metrics]
         # return a list consist of methodes and methods and thier metrics value
+
+
     def call_method_metrics(self,db,method_name):
-        method_metrics_value=list()
+
+        ques = list()
+        for i in range(35):
+            ques.append(queue.Queue())
+
         obj_get_metrics = cls_get_metrics()
-        #the order of the following invokes code is based on method_metric_name list
-        method_metrics_value.append(obj_get_metrics.LOC(method_name))
-        method_metrics_value.append(obj_get_metrics.CYCLO(method_name))
-        method_metrics_value.append(obj_get_metrics.MAXNESTING(method_name))
-        method_metrics_value.append(obj_get_metrics.NOLV(method_name))
-        method_metrics_value.append(obj_get_metrics.ATLD(db,method_name))
-        method_metrics_value.append(obj_get_metrics.give_cc(db,method_name))
-        method_metrics_value.append(obj_get_metrics.CM(method_name))
-        method_metrics_value.append(obj_get_metrics.FANOUT_OUR(method_name))
-        method_metrics_value.append(obj_get_metrics.CINT(method_name))
-        method_metrics_value.append(obj_get_metrics.CDISP(method_name))
-        method_metrics_value.append(obj_get_metrics.CountInput(method_name))
-        method_metrics_value.append(obj_get_metrics.CountLineBlank(method_name))
-        method_metrics_value.append(obj_get_metrics.CountLineCode(method_name))
-        method_metrics_value.append(obj_get_metrics.CountLineCodeDecl(method_name))
-        method_metrics_value.append(obj_get_metrics.CountLineCodeExe(method_name))
-        method_metrics_value.append(obj_get_metrics.CountLineComment(method_name))
-        method_metrics_value.append(obj_get_metrics.CountOutPut(method_name))
-        method_metrics_value.append(obj_get_metrics.CountPath(method_name))
-        method_metrics_value.append(obj_get_metrics.CountPathLog(method_name))
-        method_metrics_value.append(obj_get_metrics.CountSemicolon(method_name))
-        method_metrics_value.append(obj_get_metrics.CountStmt(method_name))
-        method_metrics_value.append(obj_get_metrics.CountStmtDecl(method_name))
-        method_metrics_value.append(obj_get_metrics.CountStmtExe(method_name))
-        method_metrics_value.append(obj_get_metrics.CyclomaticModified(method_name))
-        method_metrics_value.append(obj_get_metrics.CyclomaticStrict(method_name))
-        method_metrics_value.append(obj_get_metrics.Essential(method_name))
-        method_metrics_value.append(obj_get_metrics.Knots(method_name))
-        method_metrics_value.append(obj_get_metrics.MaxEssentialKnots(method_name))
-        method_metrics_value.append(obj_get_metrics.MinEssentialKnots(method_name))
-        method_metrics_value.append(obj_get_metrics.RatioCommentToCode(method_name))
-        method_metrics_value.append(obj_get_metrics.SumCyclomatic(method_name))
-        method_metrics_value.append(obj_get_metrics.SumCyclomaticModified(method_name))
-        method_metrics_value.append(obj_get_metrics.SumCyclomaticStrict(method_name))
-        method_metrics_value.append(obj_get_metrics.SumEssential(method_name))
-        method_metrics_value.append(obj_get_metrics.NOPL(method_name))
+        methodthreads = list()
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.LOC(arg1)), args=(ques[0], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.CYCLO(arg1)), args=(ques[1], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.MAXNESTING(arg1)), args=(ques[2], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.NOLV(arg1)), args=(ques[3], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.ATLD(arg1)), args=(ques[4], [db,method_name])))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.give_cc(arg1)), args=(ques[5], [db,method_name])))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.CM(arg1)), args=(ques[6], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.FANOUT_OUR(arg1)), args=(ques[7], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.CINT(arg1)), args=(ques[8], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.CDISP(arg1)), args=(ques[9], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountInput(arg1)), args=(ques[10], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountLineBlank(arg1)), args=(ques[11], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountLineCode(arg1)), args=(ques[12], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountLineCodeDecl(arg1)), args=(ques[13], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountLineCodeExe(arg1)), args=(ques[14], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountLineComment(arg1)), args=(ques[15], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountOutPut(arg1)), args=(ques[16], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountPath(arg1)), args=(ques[17], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountPathLog(arg1)), args=(ques[18], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountSemicolon(arg1)), args=(ques[19], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountStmt(arg1)), args=(ques[20], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountStmtDecl(arg1)), args=(ques[21], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.CountStmtExe(arg1)), args=(ques[22], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.CyclomaticModified(arg1)), args=(ques[23], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.CyclomaticStrict(arg1)), args=(ques[24], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.Essential(arg1)), args=(ques[25], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.Knots(arg1)), args=(ques[26], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.MaxEssentialKnots(arg1)), args=(ques[27], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.MinEssentialKnots(arg1)), args=(ques[28], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.RatioCommentToCode(arg1)), args=(ques[29], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.SumCyclomatic(arg1)), args=(ques[30], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.SumCyclomaticModified(arg1)), args=(ques[31],method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.SumCyclomaticStrict(arg1)), args=(ques[32], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.SumEssential(arg1)), args=(ques[33], method_name)))
+        methodthreads.append(
+            Thread(target=lambda q, arg1: q.put(obj_get_metrics.NOPL(arg1)), args=(ques[34], method_name)))
+
+        for thread in methodthreads:
+            thread.start()
+        for thread2 in methodthreads:
+            thread2.join()
+
+        method_metrics_value = list()
+        for i in range(35):
+            method_metrics_value.append(ques[i].get())
 
         return method_metrics_value
 
+
+
+    # def call_method_metrics(self,db,method_name):
+    #     method_metrics_value=list()
+    #     obj_get_metrics = cls_get_metrics()
+    #     #the order of the following invokes code is based on method_metric_name list
+    #     method_metrics_value.append(obj_get_metrics.LOC(method_name))
+    #     method_metrics_value.append(obj_get_metrics.CYCLO(method_name))
+    #     method_metrics_value.append(obj_get_metrics.MAXNESTING(method_name))
+    #     method_metrics_value.append(obj_get_metrics.NOLV(method_name))
+    #     method_metrics_value.append(obj_get_metrics.ATLD(db,method_name))
+    #     method_metrics_value.append(obj_get_metrics.give_cc(db,method_name))
+    #     method_metrics_value.append(obj_get_metrics.CM(method_name))
+    #     method_metrics_value.append(obj_get_metrics.FANOUT_OUR(method_name))
+    #     method_metrics_value.append(obj_get_metrics.CINT(method_name))
+    #     method_metrics_value.append(obj_get_metrics.CDISP(method_name))
+    #     method_metrics_value.append(obj_get_metrics.CountInput(method_name))
+    #     method_metrics_value.append(obj_get_metrics.CountLineBlank(method_name))
+    #     method_metrics_value.append(obj_get_metrics.CountLineCode(method_name))
+    #     method_metrics_value.append(obj_get_metrics.CountLineCodeDecl(method_name))
+    #     method_metrics_value.append(obj_get_metrics.CountLineCodeExe(method_name))
+    #     method_metrics_value.append(obj_get_metrics.CountLineComment(method_name))
+    #     method_metrics_value.append(obj_get_metrics.CountOutPut(method_name))
+    #     method_metrics_value.append(obj_get_metrics.CountPath(method_name))
+    #     method_metrics_value.append(obj_get_metrics.CountPathLog(method_name))
+    #     method_metrics_value.append(obj_get_metrics.CountSemicolon(method_name))
+    #     method_metrics_value.append(obj_get_metrics.CountStmt(method_name))
+    #     method_metrics_value.append(obj_get_metrics.CountStmtDecl(method_name))
+    #     method_metrics_value.append(obj_get_metrics.CountStmtExe(method_name))
+    #     method_metrics_value.append(obj_get_metrics.CyclomaticModified(method_name))
+    #     method_metrics_value.append(obj_get_metrics.CyclomaticStrict(method_name))
+    #     method_metrics_value.append(obj_get_metrics.Essential(method_name))
+    #     method_metrics_value.append(obj_get_metrics.Knots(method_name))
+    #     method_metrics_value.append(obj_get_metrics.MaxEssentialKnots(method_name))
+    #     method_metrics_value.append(obj_get_metrics.MinEssentialKnots(method_name))
+    #     method_metrics_value.append(obj_get_metrics.RatioCommentToCode(method_name))
+    #     method_metrics_value.append(obj_get_metrics.SumCyclomatic(method_name))
+    #     method_metrics_value.append(obj_get_metrics.SumCyclomaticModified(method_name))
+    #     method_metrics_value.append(obj_get_metrics.SumCyclomaticStrict(method_name))
+    #     method_metrics_value.append(obj_get_metrics.SumEssential(method_name))
+    #     method_metrics_value.append(obj_get_metrics.NOPL(method_name))
+    #
+    #     return method_metrics_value
+
+    def thread(self,db):
+        que=queue.Queue()
+        que2 = queue.Queue()
+
+        classthread=Thread(target=lambda q, arg1: q.put(self.class_metrics_arange(arg1)),args=(que,db))
+        methodthread = Thread(target=lambda q, arg1: q.put(self.method_metrics_arange(arg1)), args=(que2, db))
+        classthread.start()
+        methodthread.start()
+        classthread.join()
+        methodthread.join()
+
+        classresult=que.get()
+        methodresult = que2.get()
+
+        # methodresult=[['Method Names'],["LOC","CYCLO","MAXNESTING","NOLV","ATLD","CC","CM","FANOUT","CINT","CDISP",
+        #                       'CountInput', 'CountLineBlank', 'CountLineCode', 'CountLineCodeDecl', 'CountLineCodeExe',
+        #                         'CountLineComment', 'CountOutput', 'CountPath', 'CountPathLog', 'CountSemicolon', 'CountStmt',
+        #                       'CountStmtDecl','CountStmtExe', 'CyclomaticModified', 'CyclomaticStrict',
+        #                       'Essential', 'Knots','MaxEssentialKnots', 'MinEssentialKnots', 'RatioCommentToCode',
+        #                       'SumCyclomatic', 'SumCyclomaticModified', 'SumCyclomaticStrict', 'SumEssential','NOPL'],['Method Values']]
+        return [classresult,methodresult]
+
     def return_results(self,db):
-        return([self.class_metrics_arange(db),self.method_metrics_arange(db)])
+        return self.thread(db)

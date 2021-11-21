@@ -21,7 +21,7 @@ def SeperateFolders(address):
     extension = 'csv'
     all_filenames = [i for i in glob.glob('*.{}'.format(extension))]
 
-    methodSmells=['candidate_Comments.csv', 'candidate_Feature_Envy.csv', 'candidate_Long_Methods.csv', 'candidate_Long_Parameter_List.csv', 'candidate_Message_Chains.csv']
+    methodSmells=['comments.csv', 'feature-envy.csv', 'brain-method.csv', 'long-parameter-list.csv', 'message-chains.csv']
     for smell in all_filenames:
         source=address+'/'+smell
         print('source : ',source)
@@ -40,7 +40,7 @@ def main(address):
     # address=browsefile_path()
     my_list = os.listdir(address)
     for folder in my_list:
-        path=address+'/'+folder+'/Validated'
+        path=address+'/'+folder
         print(path)
         SeperateFolders(path)
 
