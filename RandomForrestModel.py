@@ -239,6 +239,13 @@ class PrepareData:
         df = pd.read_csv(address)
         try:
             df.drop('WOC', inplace=True, axis=1)
+            df.drop('NOAM', inplace=True, axis=1)
+            df.drop('WMCNAMM', inplace=True, axis=1)
+            df.drop('LOCNAMM', inplace=True, axis=1)
+            df.drop('NOMNAMM', inplace=True, axis=1)
+            df.drop('ATFD', inplace=True, axis=1)
+            df.drop('TCC', inplace=True, axis=1)
+
         except:
             pass
 

@@ -1,13 +1,4 @@
-import understand as und
-from statistics import mean
-import os
 import progressbar
-from tkinter import *
-# class cls_main:
-#     def main(self):
-#         db = und.open("C:\\Users\\saeed\\Desktop\\csharpprojectfortestudb\\Root_projects_folder\\Newfolder\\tel\\project1.udb")
-#
-
 
 
 class cls_get_metrics:
@@ -346,7 +337,7 @@ class cls_get_metrics:
     #         return False
     def is_abstract(self,ent):
         try:
-            if("Abstract" in str(ent.kind())    ):
+            if("Abstract" in str(ent.kind())):
                 return True
             else:
                 return False
@@ -382,7 +373,7 @@ class cls_get_metrics:
             else:
                 count = 0
 
-                for mth in class_name.ents('Define', 'method'):
+                for mth in class_name.ents('Define', 'Method'):
                     if (str(mth.name()).startswith(("get", "set", "Set", "Get"))):
                         # print(mth.longname())
                         count += 1
@@ -394,7 +385,7 @@ class cls_get_metrics:
     # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
     def NOMNAMM(self,class_name):
         try:
-            mth_=class_name.ents("Define","method")
+            mth_=class_name.ents("Define","Method")
             return  ((len(mth_ ))- self.NOAM(class_name))
         except:
             return None
@@ -406,17 +397,20 @@ class cls_get_metrics:
                 return None
             else:
                 LOCAMM = 0
-                for mth in class_name.ents('Define','method'):
-                        if (str(mth).startswith(("get","set","Set","Get"))):
-                            if (mth.metric(["CountLine"])["CountLine"] != None):
-                                 LOCAMM += mth.metric(["CountLine"])["CountLine"]
+                for mth in class_name.ents('Define','Method'):
+                    mthfullname = str(mth.name())
+                    ind = mthfullname.index('.')
+                    mthname = mthfullname[ind + 1:]
+                    if (str(mthname).startswith(("get","set","Set","Get"))):
+                        if (mth.metric(["CountLine"])["CountLine"] != None):
+                             LOCAMM += mth.metric(["CountLine"])["CountLine"]
                 return (LOC-LOCAMM)
         except:
             return None
     # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-    def LOC(self,funcname):
+    def LOC(self,entname):
         try:
-            return funcname.metric(["CountLine"])["CountLine"]
+            return entname.metric(["CountLine"])["CountLine"]
         except:
             return None
     # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
@@ -449,7 +443,7 @@ class cls_get_metrics:
                 return None
             else:
                 sum=0
-                for mth in class_name.ents('Define','method'):
+                for mth in class_name.ents('Define','Method'):
                     if  not(self.is_accesor_or_mutator(mth)):
                         if(mth.metric(["Cyclomatic"])["Cyclomatic"]!=None):
                             sum += mth.metric(["Cyclomatic"])["Cyclomatic"]
@@ -1293,3 +1287,9 @@ class cls_arangement:
 
     def return_results(self,db):
         return([self.class_metrics_arange(db),self.method_metrics_arange(db)])
+
+    def returnClassMetrics(self,db):
+        return self.class_metrics_arange(db)
+
+    def returnMethodMetrics(self,db):
+        return self.method_metrics_arange(db)

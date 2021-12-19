@@ -11,6 +11,7 @@ def browsefile_path(title="Select the file"):
     files = filedialog.askopenfilenames(title=title)
     return files[0]
 
+
 def is_abstract(ent):
     try:
         if("Abstract" in str(ent.kind())):

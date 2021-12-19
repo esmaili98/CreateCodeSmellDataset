@@ -3,7 +3,7 @@ import understand as und
 import Main_metrics
 
 import tkinter
-from tkinter import filedialog
+
 import os
 import csv
 
@@ -34,8 +34,6 @@ def search_for_file_path(sourcedir):
         print("\nfile_path_variable = ", tempdir)
         # {{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{
         rootpath=tempdir+"/"
-
-
         # path
         project_name=create_understand_database_from_project(rootpath)
         # print('111',project_name,'2222',tempdir)

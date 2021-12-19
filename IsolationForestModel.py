@@ -10,7 +10,7 @@ def IsolationForrest(address):
     print(x.head())
     # x=wine.values()
 
-    clf = IsolationForest(contamination=.0157)
+    clf = IsolationForest(contamination=.04)
     clf.fit(x)
     ifResult =list(clf.predict(x))
 #################################################
