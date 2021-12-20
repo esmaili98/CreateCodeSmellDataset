@@ -47,7 +47,7 @@ def GradientBoosting():
                                            subsample=0.5,
                                            validation_fraction=0.2,
                                            n_iter_no_change=20,
-                                           max_features='auto',
+
                                            verbose=1)
     gbm.fit(x_train, y_train)
     pred_rfc = gbm.predict(x_test)
