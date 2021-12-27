@@ -316,8 +316,7 @@ def call_class_metrics(clas):
 
 if __name__ == '__main__':
 
-    # db = und.open(udb_path='.udb file address...')
-    db=und.open('C:\\Users\Sadaf\Desktop\\apache-ant-1.5.2.udb')
+    db = und.open(udb_path='.udb file address...')
     metricsDataset=[['ClassLongname','WOC','WMCNAMM','LOCNAMM','NOMNAMM','NOAM','ATFD','TCC']]
     for cls in db.ents('class'):
         result=class_metrics_arange(cls)
